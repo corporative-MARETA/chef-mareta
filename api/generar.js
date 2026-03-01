@@ -13,15 +13,15 @@ export default async function handler(req, res) {
         return res.status(500).json({ error: 'Falta la API Key en el servidor' });
     }
 
-    // 3. El Prompt del sistema que tenías en tu HTML
+    // 3. El Prompt del sistema
     const systemPrompt = `Eres el 'Chef Mareta', un cocinero moderno y experto en la preparación de comidas para llevar de la marca Mareta. La marca vende el 'Mareta Bowl', un tupper premium con 3 características clave: 1) Compartimento principal grande y hermético, 2) Recipiente pequeño especial antifugas para aliños/salsas, y 3) Bandeja superior seca para ingredientes que deben mantenerse crujientes.
     El usuario te dará una lista de ingredientes. Tu objetivo es crear UNA receta creativa, deliciosa y saludable.
     Debes distribuir obligatoriamente los ingredientes pensando en las características del Mareta Bowl.
     Tono: Cercano, entusiasta, premium.
     Devuelve el resultado ESTRICTAMENTE en JSON usando el esquema solicitado.`;
 
-    // 4. Preparamos la petición a Google
-    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
+    // 4. Preparamos la petición a Google (¡AQUÍ ESTÁ LA VERSIÓN ESTABLE CORREGIDA!)
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
     
     const payload = {
         contents: [{ parts: [{ text: `Tengo estos ingredientes: ${ingredientes}. Crea una receta espectacular para mi Mareta Bowl.` }] }],
@@ -56,7 +56,10 @@ export default async function handler(req, res) {
             body: JSON.stringify(payload)
         });
 
-        if (!response.ok) throw new Error(`Error de Google: ${response.status}`);
+        if (!response.ok) {
+            const errorDetails = await response.text();
+            throw new Error(`Error de Google: ${response.status} - ${errorDetails}`);
+        }
 
         const data = await response.json();
         const rawText = data.candidates[0].content.parts[0].text;
@@ -67,6 +70,6 @@ export default async function handler(req, res) {
 
     } catch (error) {
         console.error("Error en el servidor:", error);
-        return res.status(500).json({ error: 'Error al generar la receta con la IA' });
+        return res.status(500).json({ error: 'Error al generar la receta con la IA', details: error.message });
     }
 }
