@@ -21,7 +21,7 @@ export default async function handler(req, res) {
     Devuelve el resultado ESTRICTAMENTE en JSON usando el esquema solicitado.`;
 
     // 4. Preparamos la petición a Google (¡AQUÍ ESTÁ LA VERSIÓN ESTABLE CORREGIDA!)
-    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`;
     
     const payload = {
         contents: [{ parts: [{ text: `Tengo estos ingredientes: ${ingredientes}. Crea una receta espectacular para mi Mareta Bowl.` }] }],
@@ -73,3 +73,4 @@ export default async function handler(req, res) {
         return res.status(500).json({ error: 'Error al generar la receta con la IA', details: error.message });
     }
 }
+
